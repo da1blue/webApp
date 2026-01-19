@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>歌詞ベクトル検索</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary: #1e88e5;
+      --primary-hover: #1565c0;
+      --bg: #f9f9f9;
+      --card-bg: #ffffff;
+      --text: #333;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 2em;
+      display: flex;
+      justify-content: center;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 640px;
+      width: 100%;
+      background: var(--card-bg);
+      padding: 2em;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 1.6em;
+      margin-bottom: 1em;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.8em;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 1em;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8em;
+      font-size: 1em;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    #status {
+      margin-top: 1em;
+      font-size: 0.9em;
+      color: #666;
+      text-align: center;
+    }
+
+    .item {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      animation: fadeIn 0.3s ease;
+      position: relative;
+    }
+
+    .item strong {
+      font-size: 1.1em;
+    }
+
+    .score {
+      float: right;
+      color: #888;
+    }
+
+    .play-btn {
+      position: absolute;
+      bottom: 1em;
+      right: 1em;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 1em;
+      }
+      .container {
+        padding: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>歌詞ベクトル検索</h1>
+    <input id="query" type="text" placeholder="歌詞やキーワードを入力..." />
+    <button id="searchBtn">検索</button>
+    <div id="status"></div>
+    <div id="results"></div>
+  </div>
+
+  <div id="playerModal" style="
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  ">
+    <div style="position: relative; width: 90%; max-width: 720px;">
+      <iframe id="ytPlayer" width="100%" height="405" style="border: none;" allowfullscreen></iframe>
+      <button id="closePlayer" style="
+        position: absolute;
+        top: -12px; right: -12px;
+        background: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 32px; height: 32px;
+        font-size: 1.2em;
+        cursor: pointer;
+      ">&times;</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import './app.js';
+
+    const queryInput = document.getElementById('query');
+    const searchBtn = document.getElementById('searchBtn');
+
+    queryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
+    });
+
+    // モーダル制御（必要に応じて app.js 側と連携）
+    document.getElementById('closePlayer').addEventListener('click', () => {
+      document.getElementById('playerModal').style.display = 'none';
+      document.getElementById('ytPlayer').src = '';
+    });
+  </script>
+</body>
+</html>
