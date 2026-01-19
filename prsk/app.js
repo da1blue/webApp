@@ -1,5 +1,5 @@
 const MODEL_BASE = "sirasagi62/ruri-v3-30m-ONNX";
-const VECTORS_JSON = "/vectors.json";
+const VECTORS_JSON = "./vectors.json";
 
 // --- 数学ユーティリティ ---
 function dot(a, b) {
