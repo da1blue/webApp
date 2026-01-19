@@ -26,33 +26,28 @@ async function loadVectors() {
   for (const e of arr) {
     if (!e.vector) throw new Error("vectors.json の各要素に vector が必要です");
     e._vec_norm = normalize(e.vector);
-    e.meta = e.metadata ?? {}; // metadata → meta に変換
+    e.meta = e.metadata ?? {};
   }
   VECTORS = arr;
   setStatus(`vectors.json 読み込み完了 (${VECTORS.length} 件)`);
   return VECTORS;
 }
 
-// --- transformers.js の pipeline を準備（CDN + ruri） ---
+// --- transformers.js の pipeline を準備 ---
 let featurePipeline = null;
 async function ensureFeaturePipeline() {
   if (featurePipeline) return featurePipeline;
   setStatus("transformers をロード中...");
   const transformers = await import("https://cdn.jsdelivr.net/npm/@xenova/transformers");
-  console.log("transformers exports:", Object.keys(transformers));
   featurePipeline = await transformers.pipeline("feature-extraction", MODEL_BASE);
   setStatus("feature-extraction pipeline 準備完了");
   return featurePipeline;
 }
 
-// --- クエリ埋め込み生成（pipeline のみ対応）---
+// --- クエリ埋め込み生成 ---
 async function createQueryEmbedding(text) {
   const p = await ensureFeaturePipeline();
-  
-  // pooling: "mean" で文ベクトルを作成し、normalize: true で正規化まで完了させる
-  const out = await p(text, { pooling: 'mean', normalize: true });
-
-  // 戻り値は Tensor オブジェクトなので、.data (Float32Array) を取り出して Array に変換
+  const out = await p(text, { pooling: "mean", normalize: true });
   return Array.from(out.data);
 }
 
@@ -73,6 +68,13 @@ function setStatus(s) {
   const el = document.getElementById("status");
   if (el) el.textContent = s;
 }
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
 function renderResults(results) {
   const root = document.getElementById("results");
   root.innerHTML = "";
@@ -80,6 +82,7 @@ function renderResults(results) {
     root.textContent = "結果なし";
     return;
   }
+
   for (const r of results) {
     const meta = r.meta ?? {};
     const title = escapeHtml(meta.title ?? r.id);
@@ -100,30 +103,28 @@ function renderResults(results) {
 
     const div = document.createElement("div");
     div.className = "item";
-div.innerHTML = `
-  <div style="display: flex; gap: 1em; align-items: flex-start;">
-    ${youtubeHtml ? `
-      <div style="flex-shrink: 0; width: 160px;">
-        ${youtubeHtml}
-      </div>` : ''
-    }
-    <div style="flex: 1;">
-      <div>
-        <strong>${title}</strong>
-        <span class="score">${score}</span>
+    div.innerHTML = `
+      <div style="display: flex; gap: 1em; align-items: flex-start;">
+        ${youtubeHtml ? `
+          <div style="flex-shrink: 0; width: 160px;">
+            ${youtubeHtml}
+          </div>` : ""
+        }
+        <div style="flex: 1;">
+          <div>
+            <strong>${title}</strong>
+            <span class="score">${score}</span>
+          </div>
+          <div style="color:#444;font-size:0.9em">
+            ${performer}<br>
+            作詞: ${lyricist} / 作曲: ${composer}
+          </div>
+        </div>
       </div>
-      <div style="color:#444;font-size:0.9em">
-        ${performer}<br>
-        作詞: ${lyricist} / 作曲: ${composer}
-      </div>
-    </div>
-  </div>
-`;
-
+    `;
     root.appendChild(div);
   }
 
-  // サムネイルクリックでプレイヤー表示
   document.querySelectorAll(".yt-thumb").forEach(el => {
     el.addEventListener("click", () => {
       const ytId = el.getAttribute("data-ytid");
@@ -137,18 +138,11 @@ div.innerHTML = `
 // プレイヤーを閉じる処理
 document.getElementById("closePlayer").addEventListener("click", () => {
   const iframe = document.getElementById("ytPlayer");
-  iframe.src = ""; // 再生停止
+  iframe.src = "";
   document.getElementById("playerModal").style.display = "none";
 });
 
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
-}
-
-// --- ボタン処理 ---
+// --- 検索ボタン ---
 document.getElementById("searchBtn").addEventListener("click", async () => {
   try {
     const q = document.getElementById("query").value.trim();
@@ -162,5 +156,22 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
   } catch (err) {
     console.error(err);
     setStatus("エラー: " + (err.message || err));
+  }
+});
+
+// --- ページ読み込み時にプリロード ---
+window.addEventListener("load", async () => {
+  try {
+    setStatus("初期ロード中...");
+    document.getElementById("searchBtn").disabled = true;
+
+    await ensureFeaturePipeline(); // モデル読み込み
+    await loadVectors();           // ベクトル読み込み
+
+    document.getElementById("searchBtn").disabled = false;
+    setStatus("準備完了");
+  } catch (err) {
+    console.error(err);
+    setStatus("初期ロードエラー: " + (err.message || err));
   }
 });
