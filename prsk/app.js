@@ -120,6 +120,7 @@ function renderResults(results) {
             作詞: ${lyricist} / 作曲: ${composer}
           </div>
           <button class="similarBtn btn btn-light w-25" data-id="${r.id}" style="margin-top:0.5em;">🔍</button>
+          <a href="https://utaten.com/lyric/${r.meta.utaten}/" target="_blank"><button class="similarBtn btn btn-light w-25" style="margin-top:0.5em;">📄</button></a>
         </div>
       </div>
     `;
