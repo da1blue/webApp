@@ -119,7 +119,7 @@ function renderResults(results) {
             ${performer}<br>
             作詞: ${lyricist} / 作曲: ${composer}
           </div>
-          <button class="similarBtn" data-id="${r.id}" style="margin-top:0.5em;">類似曲を探す</button>
+          <button class="similarBtn" data-id="${r.id}" style="margin-top:0.5em;">🔍</button>
         </div>
       </div>
     `;
