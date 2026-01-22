@@ -101,7 +101,7 @@ function renderResults(results) {
         </div>`;
     }
 
- const div = document.createElement("div");
+    const div = document.createElement("div");
     div.className = "item";
     div.innerHTML = `
       <div style="display: flex; gap: 1em; align-items: flex-start;">
@@ -109,7 +109,7 @@ function renderResults(results) {
           <div style="flex-shrink: 0; width: 160px;">
             ${youtubeHtml}
           </div>` : ""
-        }
+      }
         <div style="flex: 1;">
           <div>
             <strong>${title}</strong>
@@ -135,17 +135,17 @@ function renderResults(results) {
   });
 
   document.querySelectorAll(".similarBtn").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    const id = btn.getAttribute("data-id");
-    const target = VECTORS.find(e => e.id === id);
-    if (!target) return;
-    setStatus(`「${target.meta.title || target.id}」に似た曲を検索中...`);
-    const results = bruteForceSearch(VECTORS, target.vector, 10);
-    renderResults(results);
-    setStatus("完了");
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-id");
+      const target = VECTORS.find(e => e.id === id);
+      if (!target) return;
+      setStatus(`「${target.meta.title || target.id}」に似た曲を検索中...`);
+      const results = bruteForceSearch(VECTORS, target.vector, 10);
+      renderResults(results);
+      setStatus("完了");
+    });
   });
-});
-
+  root.appendChild(div);
 }
 
 // プレイヤーを閉じる処理
