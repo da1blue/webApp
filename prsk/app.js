@@ -119,10 +119,11 @@ function renderResults(results) {
             ${performer}<br>
             作詞: ${lyricist} / 作曲: ${composer}
           </div>
-          <button class="similarBtn" data-id="${r.id}" style="margin-top:0.5em;">🔍</button>
+          <button class="similarBtn btn btn-light w-25" data-id="${r.id}" style="margin-top:0.5em;">🔍</button>
         </div>
       </div>
     `;
+    root.appendChild(div);
   }
 
   document.querySelectorAll(".yt-thumb").forEach(el => {
@@ -168,7 +169,7 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
     setStatus("完了");
   } catch (err) {
     console.error(err);
-    setStatus("エラー: " + (err.message || err));
+    // setStatus("エラー: " + (err.message || err));
   }
 });
 
