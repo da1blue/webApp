@@ -137,10 +137,11 @@ function renderResults(results) {
 
   document.querySelectorAll(".similarBtn").forEach(btn => {
     btn.addEventListener("click", async () => {
+      document.getElementById("query").value = "";
       const id = btn.getAttribute("data-id");
       const target = VECTORS.find(e => e.id === id);
       if (!target) return;
-      setStatus(`「${target.meta.title || target.id}」に似た曲を検索中...`);
+      setStatus(`「${target.meta.title || target.id}」に似た曲を検索`);
       const results = bruteForceSearch(VECTORS, target.vector, 10);
       renderResults(results);
       setStatus("完了");
