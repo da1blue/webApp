@@ -101,7 +101,7 @@ function renderResults(results) {
         </div>`;
     }
 
-    const div = document.createElement("div");
+ const div = document.createElement("div");
     div.className = "item";
     div.innerHTML = `
       <div style="display: flex; gap: 1em; align-items: flex-start;">
@@ -119,10 +119,10 @@ function renderResults(results) {
             ${performer}<br>
             作詞: ${lyricist} / 作曲: ${composer}
           </div>
+          <button class="similarBtn" data-id="${r.id}" style="margin-top:0.5em;">類似曲を探す</button>
         </div>
       </div>
     `;
-    root.appendChild(div);
   }
 
   document.querySelectorAll(".yt-thumb").forEach(el => {
@@ -133,6 +133,19 @@ function renderResults(results) {
       document.getElementById("playerModal").style.display = "flex";
     });
   });
+
+  document.querySelectorAll(".similarBtn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const id = btn.getAttribute("data-id");
+    const target = VECTORS.find(e => e.id === id);
+    if (!target) return;
+    setStatus(`「${target.meta.title || target.id}」に似た曲を検索中...`);
+    const results = bruteForceSearch(VECTORS, target.vector, 10);
+    renderResults(results);
+    setStatus("完了");
+  });
+});
+
 }
 
 // プレイヤーを閉じる処理
